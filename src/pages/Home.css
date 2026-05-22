@@ -1,0 +1,11 @@
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+  background: #efe4d6;
+}
+
+.home main {
+  flex: 1;
+}

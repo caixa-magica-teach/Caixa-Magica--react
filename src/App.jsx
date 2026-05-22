@@ -1,15 +1,14 @@
 import { useState } from "react";
-import Login from "./pages/Login";
+import Home from "./pages/Home";
 import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+export default function App() {
   return (
-    <>
-      <Login />
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="pages/login" element={<Login />} />
+    </Routes>
   );
 }
-
-export default App;
