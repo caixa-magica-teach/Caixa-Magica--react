@@ -1,24 +1,20 @@
 // src/components/Navbar.jsx
 import logo from "../assets/logo.png";
-import "./Navbar.css";
 import { Link } from "react-router-dom";
+import "./Navbar.css";
 
 function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <img src={logo} alt="Caixa Mágica" className="navbar-logo" />
+        <Link to="/">
+          <img src={logo} alt="Caixa Mágica" className="navbar-logo" />
+        </Link>
 
         <ul className="navbar-links">
-          <li>
-            <a href="#">Catálogo</a>
-          </li>
-          <li>
-            <Link to="/pages/Login">Login</Link>
-          </li>
-          <li>
-            <a href="#">Sobre</a>
-          </li>
+          <li><Link to="/catalogo">Catálogo</Link></li>
+          <li><Link to="/login">Login</Link></li>
+          <li><a href="#">Sobre</a></li>
         </ul>
 
         <div className="navbar-search">
