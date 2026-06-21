@@ -55,6 +55,7 @@ function Footer() {
               <h4>Ajuda</h4>
               <a href="#">Serviço</a>
               <a href="#">Contatos</a>
+              <a href="#">Contrato de Locação</a>
             </div>
             <div className="footer-col">
               <h4>Outros</h4>

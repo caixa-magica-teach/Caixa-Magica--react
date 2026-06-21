@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   Catalogo.css — fiel ao design da imagem
+   Catalogo.css — filtros avançados
    ══════════════════════════════════════════ */
 
 .catalogo-container {
@@ -11,7 +11,7 @@
   color: var(--text);
 }
 
-/* ── Layout lateral + conteúdo ──────────── */
+/* ── Layout ─────────────────────────────── */
 .catalogo-body {
   display: flex;
   align-items: flex-start;
@@ -25,23 +25,94 @@
 }
 
 /* ══════════════════════════════════════════
-   SIDEBAR DE FILTROS
+   SIDEBAR
    ══════════════════════════════════════════ */
 .catalogo-sidebar {
-  width: 180px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  transition: width 0.2s;
+}
+
+.catalogo-sidebar.aberta {
+  width: 200px;
+}
+.catalogo-sidebar.fechada {
+  width: 36px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .sidebar-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
+.filtros-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle {
+  background: var(--input);
+  border: none;
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.sidebar-toggle:hover {
+  background: var(--border);
+}
+
+/* Botão limpar */
+.btn-limpar {
+  background: none;
+  border: 1.5px solid var(--error);
+  color: var(--error);
+  border-radius: var(--radius-md);
+  padding: 5px 10px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+}
+
+.btn-limpar:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+/* Blocos de filtro */
 .filtro-bloco {
   display: flex;
   flex-direction: column;
@@ -49,9 +120,11 @@
 }
 
 .filtro-label {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .filtro-select {
@@ -72,11 +145,43 @@
   border-color: var(--accent);
 }
 
+/* Pills pequenas da sidebar */
+.filtro-pills-small {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.pill-small {
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--input);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.pill-small:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pill-small-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Checkboxes de valor */
 .filtro-checkboxes {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-top: 4px;
+  gap: 6px;
 }
 
 .filtro-check-item {
@@ -93,6 +198,7 @@
   width: 13px;
   height: 13px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════
@@ -102,25 +208,34 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   min-width: 0;
 }
 
-/* ── Pills de categoria ─────────────────── */
-.categorias-pills {
+/* Topbar: pills + ordenação */
+.catalogo-topbar {
   display: flex;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
+.categorias-pills {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
 .pill {
-  padding: 7px 16px;
+  padding: 6px 14px;
   border-radius: 99px;
   border: 1.5px solid var(--border);
   background: var(--input);
   color: var(--text);
   font-family: var(--font);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
@@ -138,6 +253,32 @@
   color: #fff;
 }
 
+.catalogo-ordenacao .filtro-select {
+  width: auto;
+  min-width: 140px;
+}
+
+/* Contagem */
+.catalogo-contagem {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-limpar-inline {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font);
+  text-decoration: underline;
+}
+
 /* ── Grid de produtos ───────────────────── */
 .produtos-grid {
   display: grid;
@@ -145,13 +286,15 @@
   gap: 1rem;
 }
 
-/* ── Card de produto ────────────────────── */
+/* ── Card ───────────────────────────────── */
 .produto-card {
   background: var(--card);
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   flex-direction: column;
 }
@@ -161,23 +304,23 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Imagem */
 .produto-img-box {
   width: 100%;
   aspect-ratio: 1 / 1;
   background: #e8e0d8;
   overflow: hidden;
+  position: relative;
 }
 
 .produto-foto {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s;
 }
 
 .produto-card:hover .produto-foto {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .produto-img-placeholder {
@@ -186,7 +329,27 @@
   background: #ddd5c8;
 }
 
-/* Nome e preço */
+/* Badge de status */
+.produto-status {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+
+.produto-status.disponivel {
+  background: rgba(75, 170, 122, 0.15);
+  color: var(--success);
+}
+
+.produto-status.alugado {
+  background: rgba(217, 107, 107, 0.15);
+  color: var(--error);
+}
+
 .produto-nome {
   font-size: 13px;
   font-weight: 600;
@@ -195,24 +358,52 @@
 }
 
 .produto-preco {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--accent);
   padding: 0 10px 10px;
 }
 
-/* Sem produtos */
-.sem-produtos {
-  grid-column: 1 / -1;
-  text-align: center;
+.produto-preco span {
+  font-size: 11px;
+  font-weight: 400;
   color: var(--muted);
-  padding: 3rem 0;
+}
+
+/* ── Estado vazio/loading/erro ──────────── */
+.catalogo-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: var(--muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.sem-produtos {
+  color: var(--muted);
   font-size: var(--font-size-sm);
 }
 
-/* ══════════════════════════════════════════
-   RESPONSIVO
-   ══════════════════════════════════════════ */
+.loading-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Responsivo ─────────────────────────── */
 @media (max-width: 900px) {
   .produtos-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -223,25 +414,25 @@
   .catalogo-body {
     flex-direction: column;
   }
-
-  .catalogo-sidebar {
+  .catalogo-sidebar.aberta {
     width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
   }
-
-  .filtro-bloco {
-    min-width: 140px;
-    flex: 1;
-  }
-
   .produtos-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .catalogo-topbar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
-@media (max-width: 420px) {
-  .produtos-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+css.busca-ativa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--card);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
 }

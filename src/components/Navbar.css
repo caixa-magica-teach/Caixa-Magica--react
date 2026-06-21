@@ -43,9 +43,10 @@
 }
 
 .navbar-links a:hover {
-  color: #c8a27a;
+  color: #f0ddc8;
 }
 
+/* ── Busca ──────────────────────────────── */
 .navbar-search {
   flex: 1;
   position: relative;
@@ -62,6 +63,11 @@
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
+  transition: box-shadow 0.2s;
+}
+
+.navbar-search input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .search-icon {
@@ -70,9 +76,115 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
-  pointer-events: none;
+  cursor: pointer;
+  user-select: none;
 }
 
+/* ── Dropdown de prévia ─────────────────── */
+.search-previa {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.previa-vazio {
+  padding: 1rem;
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+}
+
+/* Item da prévia */
+.previa-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.previa-item:hover {
+  background: #f7f0e8;
+}
+
+.previa-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #ede8e0;
+}
+
+.previa-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.previa-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #ddd5c8;
+}
+
+.previa-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.previa-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 0 2px;
+}
+
+.previa-preco {
+  font-size: 11px;
+  color: #a67b5b;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Botão ver todos */
+.previa-ver-todos {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: #f7f0e8;
+  border: none;
+  border-top: 1px solid #ede8e0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a67b5b;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.previa-ver-todos:hover {
+  background: #ede0cc;
+}
+
+/* ── Carrinho ───────────────────────────── */
 .navbar-cart {
   background: none;
   border: none;
@@ -81,8 +193,29 @@
   color: #fff;
   transition: transform 0.2s;
   flex-shrink: 0;
+  position: relative;
+  padding: 4px;
 }
 
 .navbar-cart:hover {
   transform: scale(1.1);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #e8453c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  line-height: 1;
 }
