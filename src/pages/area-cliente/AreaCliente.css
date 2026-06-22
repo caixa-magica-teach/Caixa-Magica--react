@@ -1,0 +1,28 @@
+/* src/pages/area-cliente/AreaCliente.css */
+.area-cliente-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.perfil-card {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #ddd;
+}
+
+.lista-alugueis {
+    margin-top: 1rem;
+}
+
+.aluguel-card {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
