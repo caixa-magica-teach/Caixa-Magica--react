@@ -1,28 +1,182 @@
-/* src/pages/area-cliente/AreaCliente.css */
-.area-cliente-container {
-    padding: 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
+/* --- Reset básico --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.perfil-card {
-    background: #f9f9f9;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    border: 1px solid #ddd;
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
-.lista-alugueis {
-    margin-top: 1rem;
-}
-
-.aluguel-card {
-    border: 1px solid #ddd;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-top: 10px;
+.page-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #a1c4fd 0%, #ffecd2 100%);
+    padding: 3rem 1rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+}
+
+.dashboard-container {
+    max-width: 950px;
+    width: 100%;
+}
+
+.welcome-header {
+    margin-bottom: 2.5rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-header h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.bloco-alugueis {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 28px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.secao-titulo {
+    color: #5d4a3d;
+    margin-bottom: 30px;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.alugueis-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+}
+
+@media (min-width: 768px) {
+    .alugueis-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Card Premium */
+.item-alugado-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+}
+
+.item-alugado-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Área para a Imagem do Brinquedo */
+.item-image-placeholder {
+    width: 100%;
+    height: 160px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    color: #ccc;
+}
+
+/* Quando você colocar a imagem real, use esta classe no seu JSX: <img className="item-img" ... /> */
+.item-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.item-info h4 {
+    color: #2d2d2d;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.status-badge {
+    background: #fdf5f0;
+    color: #b08d75;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(176, 141, 117, 0.2);
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.prazo-texto {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.prazo-texto strong {
+    color: #5d4a3d;
+}
+
+/* Botões Modernos */
+.acoes-container {
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.btn-acao {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+/* Botão Primário (Renovar) */
+.btn-renovar {
+    background: #b08d75;
+    color: white;
+    box-shadow: 0 4px 10px rgba(176, 141, 117, 0.3);
+}
+
+.btn-renovar:hover {
+    background: #9a7d68;
+    transform: scale(1.02);
+}
+
+/* Botão Secundário (Devolver) */
+.btn-devolucao {
+    background: transparent;
+    border: 2px solid #e0dcd9;
+    color: #777;
+}
+
+.btn-devolucao:hover {
+    background: #fdf5f0;
+    border-color: #b08d75;
+    color: #b08d75;
+}
+
+.dashboard-footer {
+    margin-top: 3rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
 }
