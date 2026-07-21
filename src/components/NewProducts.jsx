@@ -6,8 +6,8 @@ import "./NewProducts.css";
 
 function NewProducts() {
   const [produtos, setProdutos] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [erro, setErro]         = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +26,9 @@ function NewProducts() {
     <section className="new-products">
       <div className="new-products-inner">
         <h2 className="new-products-title">Acabou de chegar!</h2>
-        <p className="new-products-sub">Confira nossos produtos mais recentes</p>
+        <p className="new-products-sub">
+          Confira nossos produtos mais recentes
+        </p>
 
         {loading ? (
           <p className="new-products-loading">Carregando...</p>
@@ -40,10 +42,15 @@ function NewProducts() {
                 <div key={produto.id} className="product-card">
                   <div className="product-img-wrap">
                     <span className="product-badge">NOVO</span>
-                    {img
-                      ? <img src={img} alt={produto.nome} className="product-img-real" />
-                      : <div className="product-img" />
-                    }
+                    {img ? (
+                      <img
+                        src={img}
+                        alt={produto.nome}
+                        className="product-img-real"
+                      />
+                    ) : (
+                      <div className="product-img" />
+                    )}
                   </div>
                   <div className="product-info">
                     <h3 className="product-name">{produto.nome}</h3>

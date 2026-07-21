@@ -1,7 +1,3 @@
-/* ══════════════════════════════════════════
-   Catalogo.css — filtros avançados
-   ══════════════════════════════════════════ */
-
 .catalogo-container {
   min-height: 100vh;
   display: flex;
@@ -11,7 +7,6 @@
   color: var(--text);
 }
 
-/* ── Layout ─────────────────────────────── */
 .catalogo-body {
   display: flex;
   align-items: flex-start;
@@ -24,9 +19,6 @@
   flex: 1;
 }
 
-/* ══════════════════════════════════════════
-   SIDEBAR
-   ══════════════════════════════════════════ */
 .catalogo-sidebar {
   flex-shrink: 0;
   display: flex;
@@ -92,7 +84,6 @@
   background: var(--border);
 }
 
-/* Botão limpar */
 .btn-limpar {
   background: none;
   border: 1.5px solid var(--error);
@@ -112,7 +103,6 @@
   color: #fff;
 }
 
-/* Blocos de filtro */
 .filtro-bloco {
   display: flex;
   flex-direction: column;
@@ -145,7 +135,6 @@
   border-color: var(--accent);
 }
 
-/* Pills pequenas da sidebar */
 .filtro-pills-small {
   display: flex;
   flex-wrap: wrap;
@@ -177,7 +166,6 @@
   color: #fff;
 }
 
-/* Checkboxes de valor */
 .filtro-checkboxes {
   display: flex;
   flex-direction: column;
@@ -201,9 +189,6 @@
   flex-shrink: 0;
 }
 
-/* ══════════════════════════════════════════
-   CONTEÚDO PRINCIPAL
-   ══════════════════════════════════════════ */
 .catalogo-main {
   flex: 1;
   display: flex;
@@ -212,7 +197,6 @@
   min-width: 0;
 }
 
-/* Topbar: pills + ordenação */
 .catalogo-topbar {
   display: flex;
   align-items: center;
@@ -258,7 +242,6 @@
   min-width: 140px;
 }
 
-/* Contagem */
 .catalogo-contagem {
   font-size: 12px;
   color: var(--muted);
@@ -279,14 +262,12 @@
   text-decoration: underline;
 }
 
-/* ── Grid de produtos ───────────────────── */
 .produtos-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 
-/* ── Card ───────────────────────────────── */
 .produto-card {
   background: var(--card);
   border-radius: var(--radius-lg);
@@ -329,7 +310,6 @@
   background: #ddd5c8;
 }
 
-/* Badge de status */
 .produto-status {
   position: absolute;
   top: 8px;
@@ -370,7 +350,6 @@
   color: var(--muted);
 }
 
-/* ── Estado vazio/loading/erro ──────────── */
 .catalogo-estado {
   display: flex;
   flex-direction: column;
@@ -403,7 +382,6 @@
   }
 }
 
-/* ── Responsivo ─────────────────────────── */
 @media (max-width: 900px) {
   .produtos-grid {
     grid-template-columns: repeat(3, 1fr);

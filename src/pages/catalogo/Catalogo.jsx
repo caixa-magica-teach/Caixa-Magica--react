@@ -1,6 +1,5 @@
-// src/pages/catalogo/Catalogo.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // ← useSearchParams adicionado
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Banner from "../../components/Banner";
 import MostRented from "../../components/MostRented";
@@ -65,9 +64,8 @@ export default function Catalogo() {
   const [sidebarAberta, setSidebarAberta] = useState(true);
 
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams(); // ← lê a URL
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Pega o termo de busca da URL (?search=...)
   const busca = searchParams.get("search") || "";
 
   const totalFiltrosAtivos =
@@ -75,14 +73,12 @@ export default function Catalogo() {
       ([k, v]) => k !== "ordenacao" && v !== "" && v !== null,
     ).length + (busca ? 1 : 0);
 
-  // Carrega categorias
   useEffect(() => {
     getCategorias()
       .then(setCategorias)
       .catch(() => {});
   }, []);
 
-  // Carrega produtos quando filtros ou busca mudam
   useEffect(() => {
     setLoading(true);
     setErro(null);
@@ -95,7 +91,7 @@ export default function Catalogo() {
     if (filtros.tipoUso) params.tipo_uso = filtros.tipoUso;
     if (filtros.valorMin) params.valor_min = filtros.valorMin;
     if (filtros.valorMax) params.valor_max = filtros.valorMax;
-    if (busca) params.search = busca; // ← usa o termo da URL
+    if (busca) params.search = busca;
 
     getBrinquedos(params)
       .then((data) => {
@@ -126,7 +122,7 @@ export default function Catalogo() {
 
   const limparFiltros = () => {
     setFiltros(FILTROS_INICIAIS);
-    setSearchParams({}); // ← limpa o ?search= da URL também
+    setSearchParams({});
   };
 
   const toggleFaixaValor = (faixa) => {
@@ -149,7 +145,6 @@ export default function Catalogo() {
       <Banner />
 
       <div className="catalogo-body">
-        {/* ══ SIDEBAR ══════════════════════════════ */}
         <aside
           className={`catalogo-sidebar ${sidebarAberta ? "aberta" : "fechada"}`}
         >
@@ -313,7 +308,6 @@ export default function Catalogo() {
           )}
         </aside>
 
-        {/* ══ CONTEÚDO PRINCIPAL ═══════════════════ */}
         <main className="catalogo-main">
           {/* Mostra termo buscado se houver */}
           {busca && (

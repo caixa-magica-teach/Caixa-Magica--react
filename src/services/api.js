@@ -1,37 +1,84 @@
 // src/services/api.js
 const BASE_URL = "http://localhost:8000/api/v1";
 
+const json = (res) => {
+  if (!res.ok) throw new Error(`Erro ${res.status}`);
+  return res.status === 204 ? null : res.json();
+};
+
 // ── Brinquedos ───────────────────────────────────────────────────
 export async function getBrinquedos(params = {}) {
   const query = new URLSearchParams(params).toString();
   const url   = query ? `${BASE_URL}/brinquedos/?${query}` : `${BASE_URL}/brinquedos/`;
-  const res   = await fetch(url);
-  if (!res.ok) throw new Error("Erro ao buscar brinquedos");
-  return res.json();
+  return json(await fetch(url));
 }
 
 export async function getBrinquedoById(id) {
-  const res = await fetch(`${BASE_URL}/brinquedos/${id}/`);
-  if (!res.ok) throw new Error("Brinquedo não encontrado");
-  return res.json();
+  return json(await fetch(`${BASE_URL}/brinquedos/${id}/`));
+}
+
+export async function criarBrinquedo(payload) {
+  return json(await fetch(`${BASE_URL}/brinquedos/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
+export async function editarBrinquedo(id, payload) {
+  return json(await fetch(`${BASE_URL}/brinquedos/${id}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
+export async function deletarBrinquedo(id) {
+  return json(await fetch(`${BASE_URL}/brinquedos/${id}/`, { method: "DELETE" }));
 }
 
 // ── Categorias ───────────────────────────────────────────────────
 export async function getCategorias() {
-  const res = await fetch(`${BASE_URL}/categorias/`);
-  if (!res.ok) throw new Error("Erro ao buscar categorias");
-  return res.json();
+  return json(await fetch(`${BASE_URL}/categorias/`));
+}
+
+export async function criarCategoria(payload) {
+  return json(await fetch(`${BASE_URL}/categorias/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
+export async function editarCategoria(id, payload) {
+  return json(await fetch(`${BASE_URL}/categorias/${id}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
+export async function deletarCategoria(id) {
+  return json(await fetch(`${BASE_URL}/categorias/${id}/`, { method: "DELETE" }));
 }
 
 // ── Pedidos ──────────────────────────────────────────────────────
-// Cria um novo pedido
-// payload: { prazo_aluguel, tipo_logistica, endereco_entrega, valor_total, itens: [{brinquedo, preco_no_momento}] }
+export async function getPedidos() {
+  return json(await fetch(`${BASE_URL}/pedidos/`));
+}
+
 export async function criarPedido(payload) {
-  const res = await fetch(`${BASE_URL}/pedidos/`, {
-    method:  "POST",
+  return json(await fetch(`${BASE_URL}/pedidos/`, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error("Erro ao criar pedido");
-  return res.json();
+    body: JSON.stringify(payload),
+  }));
+}
+
+export async function editarPedido(id, payload) {
+  return json(await fetch(`${BASE_URL}/pedidos/${id}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
 }
