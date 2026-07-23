@@ -9,7 +9,7 @@ const json = (res) => {
 // ── Brinquedos ───────────────────────────────────────────────────
 export async function getBrinquedos(params = {}) {
   const query = new URLSearchParams(params).toString();
-  const url   = query ? `${BASE_URL}/brinquedos/?${query}` : `${BASE_URL}/brinquedos/`;
+  const url = query ? `${BASE_URL}/brinquedos/?${query}` : `${BASE_URL}/brinquedos/`;
   return json(await fetch(url));
 }
 
@@ -67,6 +67,7 @@ export async function getPedidos() {
   return json(await fetch(`${BASE_URL}/pedidos/`));
 }
 
+
 export async function criarPedido(payload) {
   return json(await fetch(`${BASE_URL}/pedidos/`, {
     method: "POST",
@@ -74,6 +75,20 @@ export async function criarPedido(payload) {
     body: JSON.stringify(payload),
   }));
 }
+
+/*para salvar
+export async function criarPedido(payload) {
+ const token = localStorage.getItem("access_token");
+
+ return json(await fetch(`${BASE_URL}/pedidos/`, {
+   method: "POST",
+   headers: {
+     "Content-Type": "application/json",
+     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+   },
+   body: JSON.stringify(payload),
+ }));
+}*/
 
 export async function editarPedido(id, payload) {
   return json(await fetch(`${BASE_URL}/pedidos/${id}/`, {

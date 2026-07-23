@@ -33,7 +33,9 @@ export default function LoginForm({ onToggle }) {
         localStorage.setItem("refresh_token", data.refresh);
 
         setTimeout(() => {
-          window.location.href = "/";
+          // window.location.href = "/";
+          window.location.href = "/Catalogo";
+
         }, 1500);
       } else {
         const errorData = await response.json();

@@ -12,15 +12,35 @@ body {
 
 .page-wrapper {
     min-height: 100vh;
-    background: linear-gradient(135deg, #a1c4fd 0%, #ffecd2 100%);
+    /* Puxa a imagem caixamagica.png direto da pasta public */
+    background: url('/caixamagica.png') no-repeat center center fixed;
+    background-size: cover;
     padding: 3rem 1rem;
     display: flex;
     justify-content: center;
+    position: relative;
+}
+
+/* Camada para escurecer e aplicar o efeito borrado (blur) na imagem de fundo */
+.page-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    /* Controla o tom escuro */
+    backdrop-filter: blur(8px);
+    /* Controla o nível do borrão */
+    z-index: 0;
 }
 
 .dashboard-container {
     max-width: 950px;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .welcome-header {
@@ -33,6 +53,69 @@ body {
     font-size: 2.2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+}
+
+/* --- Ajuste do Topo (Abas + Botão Catálogo Lado a Lado) --- */
+.dashboard-topo-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+/* --- Estilos do Menu de Abas --- */
+.dashboard-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5d4a3d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: #b08d75;
+    color: #ffffff;
+    border-color: #b08d75;
+    box-shadow: 0 4px 15px rgba(176, 141, 117, 0.3);
+}
+
+/* Botão do Catálogo no Topo */
+.btn-catalogo-topo {
+    background: #b08d75;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(176, 141, 117, 0.3);
+    white-space: nowrap;
+}
+
+.btn-catalogo-topo:hover {
+    background: #9a7d68;
+    transform: translateY(-2px);
 }
 
 .bloco-alugueis {
@@ -79,6 +162,17 @@ body {
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
+/* Alerta de Prazos Curtos */
+.card-alerta {
+    border: 2px solid #e57373 !important;
+}
+
+.badge-urgente {
+    background: #ffebee !important;
+    color: #c62828 !important;
+    border-color: rgba(198, 40, 40, 0.2) !important;
+}
+
 /* Área para a Imagem do Brinquedo */
 .item-image-placeholder {
     width: 100%;
@@ -92,7 +186,6 @@ body {
     color: #ccc;
 }
 
-/* Quando você colocar a imagem real, use esta classe no seu JSX: <img className="item-img" ... /> */
 .item-img {
     width: 100%;
     height: 160px;
@@ -179,4 +272,17 @@ body {
     text-align: center;
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
+}
+
+/* Responsivo para telas menores */
+@media (max-width: 768px) {
+    .dashboard-topo-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-catalogo-topo {
+        width: 100%;
+        text-align: center;
+    }
 }
