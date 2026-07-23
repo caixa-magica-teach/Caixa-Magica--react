@@ -34,7 +34,7 @@ export default function LoginForm({ onToggle }) {
 
         setTimeout(() => {
           // window.location.href = "/";
-          window.location.href = "/Catalogo";
+          window.location.href = "/area-cliente";
 
         }, 1500);
       } else {
