@@ -7,28 +7,45 @@ import { useCart } from "../context/CartContext";
 import { criarPedido } from "../services/api";
 import "./Carrinho.css";
 
-const PERIODOS = [
-  { dias: 1, label: "Diária" },
+// Prazos alinhados exatamente com o PRAZO_CHOICES do seu models.py no Django
+const PRAZOS_DISPONIVEIS = [
   { dias: 7, label: "7 Dias" },
   { dias: 15, label: "15 Dias" },
-  { dias: 30, label: "1 Mês" },
+  { dias: 30, label: "30 Dias (1 Mês)" },
 ];
 
 export default function Carrinho() {
-  const { itens, removerItem, limparCarrinho, total, quantidade } = useCart();
+  const { itens, removerItem, limparCarrinho, quantidade } = useCart();
   const navigate = useNavigate();
+
+  // Estados de controle da tela
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState(null);
 
-  // Logística
+  // Estado do Prazo Global do pedido (exigido como valor único no seu Django: 7, 15 ou 30)
+  const [prazoSelecionado, setPrazoSelecionado] = useState(7);
+
+  // Estado da Logística ('retirada' ou 'entrega', conforme LOGISTICA_CHOICES)
   const [logistica, setLogistica] = useState("retirada");
   const [endereco, setEndereco] = useState("");
 
+  // Cálculo Dinâmico: Diária do item * Dias selecionados no resumo
+  const calcularPrecoItem = (valorBase) => {
+    return Number(valorBase) * prazoSelecionado;
+  };
+
+  // Soma o Total Geral com base no Prazo Global escolhido
+  const valorTotalCarrinho = itens.reduce((acc, item) => {
+    const base = item.valorBase || item.valor_base || 0;
+    return acc + calcularPrecoItem(base);
+  }, 0);
+
   const confirmarPedido = async () => {
     if (itens.length === 0) return;
+
     if (logistica === "entrega" && !endereco.trim()) {
-      setErro("Preencha o endereço de entrega.");
+      setErro("Por favor, preencha o endereço para entrega.");
       return;
     }
 
@@ -36,30 +53,35 @@ export default function Carrinho() {
     setErro(null);
 
     try {
-      // Monta o payload para a API
+      // Montagem do payload estritamente compatível com os modelos Pedido e ItemPedido
       const payload = {
-        prazo_aluguel: itens[0].dias, // usa o prazo do primeiro item
+        prazo_aluguel: Number(prazoSelecionado),
         tipo_logistica: logistica,
-        endereco_entrega: logistica === "entrega" ? endereco : "",
-        valor_total: total,
-        itens: itens.map((i) => ({
-          brinquedo: i.id,
-          preco_no_momento: i.precoTotal,
+        endereco_entrega: logistica === "entrega" ? endereco : null,
+        valor_total: Number(valorTotalCarrinho.toFixed(2)),
+        itens: itens.map((item) => ({
+          brinquedo: item.id || item.brinquedo,
+          preco_no_momento: Number(
+            calcularPrecoItem(item.valorBase || item.valor_base).toFixed(2),
+          ),
         })),
       };
 
       await criarPedido(payload);
       setSucesso(true);
       limparCarrinho();
-    } catch {
-      setErro("Não foi possível confirmar o pedido. Tente novamente.");
+    } catch (error) {
+      console.error("Erro ao criar pedido:", error);
+      setErro(
+        "Não foi possível confirmar o pedido. Verifique se você está logado.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Tela de sucesso ──────────────────────────
-  if (sucesso)
+  // ── Tela de Sucesso ──────────────────────────
+  if (sucesso) {
     return (
       <div className="carrinho-container">
         <Navbar />
@@ -77,7 +99,9 @@ export default function Carrinho() {
         <Rodape />
       </div>
     );
+  }
 
+  // ── Tela Principal do Carrinho ───────────────
   return (
     <div className="carrinho-container">
       <Navbar />
@@ -94,7 +118,7 @@ export default function Carrinho() {
           )}
         </h1>
 
-        {/* ── Carrinho vazio ── */}
+        {/* ── Carrinho Vazio ── */}
         {itens.length === 0 ? (
           <div className="carrinho-vazio">
             <p className="vazio-icon">🛒</p>
@@ -108,75 +132,104 @@ export default function Carrinho() {
           </div>
         ) : (
           <div className="carrinho-grid">
-            {/* ── Lista de itens ── */}
+            {/* ── Lista de Itens ── */}
             <div className="carrinho-itens">
-              {itens.map((item) => (
-                <div key={item.id} className="carrinho-item">
-                  <div className="item-img-box">
-                    {item.imagem ? (
-                      <img
-                        src={item.imagem}
-                        alt={item.nome}
-                        className="item-img"
-                      />
-                    ) : (
-                      <div className="item-img-placeholder" />
-                    )}
-                  </div>
+              {itens.map((item) => {
+                const idItem = item.id || item.brinquedo;
+                const baseItem = item.valorBase || item.valor_base || 0;
+                const imgItem = item.imagem || item.imagem_url;
+                const precoCalculado = calcularPrecoItem(baseItem);
 
-                  <div className="item-info">
-                    <p className="item-nome">{item.nome}</p>
-                    <p className="item-periodo">
-                      {PERIODOS.find((p) => p.dias === item.dias)?.label ||
-                        `${item.dias} dias`}
-                    </p>
-                    <p className="item-base">
-                      R$ {item.valorBase.toFixed(2).replace(".", ",")}/dia
-                    </p>
-                  </div>
+                return (
+                  <div key={idItem} className="carrinho-item">
+                    <div className="item-img-box">
+                      {imgItem ? (
+                        <img
+                          src={imgItem}
+                          alt={item.nome}
+                          className="item-img"
+                        />
+                      ) : (
+                        <div className="item-img-placeholder" />
+                      )}
+                    </div>
 
-                  <div className="item-direita">
-                    <p className="item-preco">
-                      R$ {item.precoTotal.toFixed(2).replace(".", ",")}
-                    </p>
-                    <button
-                      className="btn-remover"
-                      onClick={() => removerItem(item.id)}
-                    >
-                      Remover
-                    </button>
+                    <div className="item-info">
+                      <p className="item-nome">{item.nome}</p>
+                      <p className="item-periodo">
+                        Aluguel de {prazoSelecionado} Dias
+                      </p>
+                      <p className="item-base">
+                        R$ {Number(baseItem).toFixed(2).replace(".", ",")}/dia
+                      </p>
+                    </div>
+
+                    <div className="item-direita">
+                      <p className="item-preco">
+                        R$ {precoCalculado.toFixed(2).replace(".", ",")}
+                      </p>
+                      <button
+                        className="btn-remover"
+                        onClick={() => removerItem(idItem)}
+                      >
+                        Remover
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* ── Resumo + confirmação ── */}
+            {/* ── Resumo + Confirmação ── */}
             <div className="carrinho-resumo">
               <h3 className="resumo-titulo">Resumo do pedido</h3>
+
+              {/* Seletor de Prazo Global (7, 15 ou 30 dias) */}
+              <div className="resumo-secao" style={{ marginBottom: "10px" }}>
+                <label className="resumo-label">Prazo do Aluguel</label>
+                <div className="logistica-opcoes">
+                  {PRAZOS_DISPONIVEIS.map((p) => (
+                    <button
+                      key={p.dias}
+                      type="button"
+                      className={`btn-logistica ${prazoSelecionado === p.dias ? "ativo" : ""}`}
+                      onClick={() => setPrazoSelecionado(p.dias)}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="resumo-linha">
                 <span>
                   Subtotal ({quantidade} {quantidade === 1 ? "item" : "itens"})
                 </span>
-                <span>R$ {total.toFixed(2).replace(".", ",")}</span>
+                <span>
+                  R$ {valorTotalCarrinho.toFixed(2).replace(".", ",")}
+                </span>
               </div>
 
               <div className="resumo-linha resumo-total">
                 <span>Total</span>
-                <span>R$ {total.toFixed(2).replace(".", ",")}</span>
+                <span>
+                  R$ {valorTotalCarrinho.toFixed(2).replace(".", ",")}
+                </span>
               </div>
 
-              {/* Logística */}
-              <div className="resumo-secao">
+              {/* Seletor de Logística (Retirada ou Entrega) */}
+              <div className="resumo-secao" style={{ marginTop: "10px" }}>
                 <label className="resumo-label">Como deseja receber?</label>
                 <div className="logistica-opcoes">
                   <button
+                    type="button"
                     className={`btn-logistica ${logistica === "retirada" ? "ativo" : ""}`}
                     onClick={() => setLogistica("retirada")}
                   >
                     🏪 Retirada
                   </button>
                   <button
+                    type="button"
                     className={`btn-logistica ${logistica === "entrega" ? "ativo" : ""}`}
                     onClick={() => setLogistica("entrega")}
                   >
@@ -185,7 +238,7 @@ export default function Carrinho() {
                 </div>
               </div>
 
-              {/* Endereço — só aparece se for entrega */}
+              {/* Campo de Endereço (Condicional para Entrega) */}
               {logistica === "entrega" && (
                 <div className="resumo-secao">
                   <label className="resumo-label">Endereço de entrega</label>

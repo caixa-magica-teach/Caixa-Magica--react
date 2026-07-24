@@ -1,6 +1,10 @@
 import { useState } from "react";
 import "./Banner.css";
 
+import imgBrinquedo1 from "../assets/brinquedo1.png";
+import imgBrinquedo2 from "../assets/brinquedo2.png";
+import imgBrinquedo3 from "../assets/brinquedo3.png";
+
 const slides = [
   {
     id: 1,
@@ -8,6 +12,7 @@ const slides = [
     highlight: "UM BRINQUEDO,",
     subtitle: "VC PODE ALUGAR VÁRIOS!",
     bg: "#e8f5f0",
+    image: imgBrinquedo1,
   },
   {
     id: 2,
@@ -15,6 +20,7 @@ const slides = [
     highlight: "PARA TODAS AS IDADES,",
     subtitle: "COM QUALIDADE E SEGURANÇA!",
     bg: "#f0e8f5",
+    image: imgBrinquedo2,
   },
   {
     id: 3,
@@ -22,6 +28,7 @@ const slides = [
     highlight: "TODA SEMANA,",
     subtitle: "CONFIRA O CATÁLOGO COMPLETO!",
     bg: "#f5f0e8",
+    image: imgBrinquedo3,
   },
 ];
 
@@ -45,7 +52,11 @@ function Banner() {
           <p className="banner-highlight">{slide.highlight}</p>
           <p className="banner-subtitle">{slide.subtitle}</p>
         </div>
-        <div className="banner-img-placeholder" />
+
+        {/* Substituímos a div placeholder pelo container com a imagem real */}
+        <div className="banner-img-container">
+          <img src={slide.image} alt={slide.highlight} className="banner-img" />
+        </div>
       </div>
 
       <button className="banner-arrow right" onClick={next}>

@@ -1,80 +1,273 @@
 // src/pages/admin/Admin.jsx
 import { useState, useEffect } from "react";
 import {
-  getBrinquedos, getCategorias, getPedidos,
-  criarBrinquedo, editarBrinquedo, deletarBrinquedo,
-  criarCategoria, editarCategoria, deletarCategoria,
+  getBrinquedos,
+  getCategorias,
+  getPedidos,
+  criarBrinquedo,
+  editarBrinquedo,
+  deletarBrinquedo,
+  criarCategoria,
+  editarCategoria,
+  deletarCategoria,
   editarPedido,
 } from "../../services/api";
 import "./Admin.css";
 
-// ── Ícones simples ────────────────────────
+// ── Senha do admin (simples, frontend only) ──
+const ADMIN_SENHA = "caixamagica2025";
+
+// ── Ícones ───────────────────────────────────
 const Icon = ({ name }) => {
   const icons = {
-    produto:   "🧸",
-    pedido:    "📦",
+    produto: "🧸",
+    pedido: "📦",
     categoria: "🏷️",
     dashboard: "📊",
-    sair:      "🚪",
-    editar:    "✏️",
-    deletar:   "🗑️",
-    novo:      "＋",
-    salvar:    "✓",
-    fechar:    "✕",
+    sair: "🚪",
+    editar: "✏️",
+    deletar: "🗑️",
+    novo: "＋",
+    fechar: "✕",
+    imagem: "🖼️",
+    lock: "🔒",
+    olho: "👁",
   };
   return <span>{icons[name] || "•"}</span>;
 };
 
-// ── Status badge ──────────────────────────
+// ── Badge de status ───────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
-    disponivel:    { label: "Disponível",   cls: "badge-green"  },
-    alugado:       { label: "Alugado",      cls: "badge-orange" },
-    manutencao:    { label: "Manutenção",   cls: "badge-red"    },
-    pendente:      { label: "Pendente",     cls: "badge-orange" },
-    aprovado:      { label: "Aprovado",     cls: "badge-green"  },
-    em_andamento:  { label: "Em andamento", cls: "badge-blue"   },
-    concluido:     { label: "Concluído",    cls: "badge-gray"   },
-    cancelado:     { label: "Cancelado",    cls: "badge-red"    },
+    disponivel: { label: "Disponível", cls: "badge-green" },
+    alugado: { label: "Alugado", cls: "badge-orange" },
+    manutencao: { label: "Manutenção", cls: "badge-red" },
+    pendente: { label: "Pendente", cls: "badge-orange" },
+    aprovado: { label: "Aprovado", cls: "badge-green" },
+    em_andamento: { label: "Em andamento", cls: "badge-blue" },
+    concluido: { label: "Concluído", cls: "badge-gray" },
+    cancelado: { label: "Cancelado", cls: "badge-red" },
   };
   const s = map[status] || { label: status, cls: "badge-gray" };
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
 };
 
-// ════════════════════════════════════════
-// SEÇÃO: DASHBOARD
-// ════════════════════════════════════════
-function Dashboard({ stats }) {
+// ════════════════════════════════════════════
+// TELA DE LOGIN DO ADMIN
+// ════════════════════════════════════════════
+function AdminLogin({ onLogin }) {
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState(false);
+  const [mostrar, setMostrar] = useState(false);
+  const [tentando, setTentando] = useState(false);
+
+  const tentar = async () => {
+    setTentando(true);
+    await new Promise((r) => setTimeout(r, 600)); // simula verificação
+    if (senha === ADMIN_SENHA) {
+      sessionStorage.setItem("admin_auth", "1");
+      onLogin();
+    } else {
+      setErro(true);
+      setSenha("");
+    }
+    setTentando(false);
+  };
+
   return (
-    <div className="admin-section">
-      <h2 className="section-title">Dashboard</h2>
-      <div className="dashboard-cards">
-        <div className="dash-card">
-          <span className="dash-icon">🧸</span>
-          <div>
-            <p className="dash-num">{stats.produtos}</p>
-            <p className="dash-label">Produtos</p>
+    <div className="admin-login-wrap">
+      <div className="admin-login-card">
+        <div className="login-icon">🧸</div>
+        <h2 className="login-title">Painel Administrativo</h2>
+        <p className="login-sub">Caixa Mágica — Acesso restrito</p>
+
+        <div className="form-group">
+          <label>Senha de acesso</label>
+          <div className="senha-wrap">
+            <input
+              type={mostrar ? "text" : "password"}
+              placeholder="Digite a senha..."
+              value={senha}
+              onChange={(e) => {
+                setSenha(e.target.value);
+                setErro(false);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && tentar()}
+              className={erro ? "input-erro" : ""}
+              autoFocus
+            />
+            <button
+              className="btn-olho"
+              onClick={() => setMostrar((v) => !v)}
+              tabIndex={-1}
+            >
+              {mostrar ? "🙈" : "👁"}
+            </button>
           </div>
+          {erro && (
+            <p className="form-erro">Senha incorreta. Tente novamente.</p>
+          )}
         </div>
-        <div className="dash-card">
-          <span className="dash-icon">✅</span>
-          <div>
-            <p className="dash-num">{stats.disponiveis}</p>
-            <p className="dash-label">Disponíveis</p>
-          </div>
+
+        <button
+          className="btn-admin btn-primary btn-full"
+          onClick={tentar}
+          disabled={tentando || !senha}
+        >
+          {tentando ? "Verificando..." : "🔓 Entrar"}
+        </button>
+
+        <a href="/" className="login-voltar">
+          ← Voltar ao site
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
+// GERENCIADOR DE IMAGENS
+// ════════════════════════════════════════════
+function GerenciadorImagens({ produto, onFechar }) {
+  const [imagens, setImagens] = useState(produto.imagens || []);
+  const [novaUrl, setNovaUrl] = useState("");
+  const [novaOrdem, setNovaOrdem] = useState(0);
+  const [adicionando, setAdicionando] = useState(false);
+  const [erro, setErro] = useState(null);
+
+  const carregar = async () => {
+    const atualizado = await import("../../services/api").then((m) =>
+      m.getBrinquedoById(produto.id),
+    );
+    setImagens(atualizado.imagens || []);
+  };
+
+  useEffect(() => {
+    setNovaOrdem(imagens.length);
+  }, [imagens.length]);
+
+  const adicionar = async () => {
+    if (!novaUrl.trim()) {
+      setErro("Cole uma URL válida.");
+      return;
+    }
+    setErro(null);
+    setAdicionando(true);
+    try {
+      await adicionarImagem({
+        brinquedo: produto.id,
+        imagem_url: novaUrl.trim(),
+        ordem: novaOrdem,
+      });
+      setNovaUrl("");
+      await carregar();
+    } catch {
+      setErro("Erro ao adicionar. Verifique a URL.");
+    } finally {
+      setAdicionando(false);
+    }
+  };
+
+  const remover = async (imgId) => {
+    if (!confirm("Remover esta imagem?")) return;
+    await deletarImagem(imgId);
+    await carregar();
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onFechar}>
+      <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>🖼️ Imagens — {produto.nome}</h3>
+          <button className="btn-icon" onClick={onFechar}>
+            <Icon name="fechar" />
+          </button>
         </div>
-        <div className="dash-card">
-          <span className="dash-icon">📦</span>
-          <div>
-            <p className="dash-num">{stats.pedidos}</p>
-            <p className="dash-label">Pedidos</p>
-          </div>
-        </div>
-        <div className="dash-card">
-          <span className="dash-icon">🏷️</span>
-          <div>
-            <p className="dash-num">{stats.categorias}</p>
-            <p className="dash-label">Categorias</p>
+
+        <div className="modal-body">
+          {/* Grid de imagens existentes */}
+          {imagens.length === 0 ? (
+            <div className="img-vazio">
+              <p>📷</p>
+              <p>Nenhuma imagem cadastrada ainda.</p>
+            </div>
+          ) : (
+            <div className="img-grid">
+              {imagens.map((img, i) => (
+                <div key={img.id} className="img-card">
+                  <div className="img-thumb-wrap">
+                    <img
+                      src={img.imagem_url}
+                      alt={`foto ${i + 1}`}
+                      className="img-thumb"
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/100?text=✕";
+                      }}
+                    />
+                    {img.ordem === 0 && (
+                      <span className="img-principal-tag">Principal</span>
+                    )}
+                  </div>
+                  <div className="img-card-info">
+                    <span className="img-ordem-label">Ordem: {img.ordem}</span>
+                    <span className="img-url-label" title={img.imagem_url}>
+                      {img.imagem_url.length > 35
+                        ? img.imagem_url.slice(0, 35) + "…"
+                        : img.imagem_url}
+                    </span>
+                  </div>
+                  <button
+                    className="btn-icon danger"
+                    onClick={() => remover(img.id)}
+                  >
+                    <Icon name="deletar" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Adicionar nova imagem */}
+          <div className="img-add-box">
+            <p className="img-add-title">➕ Adicionar nova imagem</p>
+            <div className="img-add-row">
+              <input
+                className="img-url-input"
+                placeholder="Cole a URL da imagem (ex: https://i.ibb.co/...)"
+                value={novaUrl}
+                onChange={(e) => {
+                  setNovaUrl(e.target.value);
+                  setErro(null);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && adicionar()}
+              />
+              <div className="img-ordem-group">
+                <label>Ordem</label>
+                <input
+                  type="number"
+                  min={0}
+                  className="img-ordem-input"
+                  value={novaOrdem}
+                  onChange={(e) => setNovaOrdem(Number(e.target.value))}
+                />
+              </div>
+              <button
+                className="btn-admin btn-primary"
+                onClick={adicionar}
+                disabled={adicionando}
+              >
+                {adicionando ? "…" : "Adicionar"}
+              </button>
+            </div>
+            {erro && <p className="form-erro">{erro}</p>}
+            <p className="img-dica">
+              💡 Faça upload grátis em{" "}
+              <a href="https://imgbb.com" target="_blank" rel="noreferrer">
+                imgbb.com
+              </a>{" "}
+              e cole o link direto aqui. <strong>Ordem 0</strong> = foto
+              principal (capa).
+            </p>
           </div>
         </div>
       </div>
@@ -82,27 +275,69 @@ function Dashboard({ stats }) {
   );
 }
 
-// ════════════════════════════════════════
-// SEÇÃO: PRODUTOS
-// ════════════════════════════════════════
+// ════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════
+function Dashboard({ stats }) {
+  return (
+    <div className="admin-section">
+      <h2 className="section-title">Dashboard</h2>
+      <div className="dashboard-cards">
+        {[
+          { icon: "🧸", num: stats.produtos, label: "Produtos" },
+          { icon: "✅", num: stats.disponiveis, label: "Disponíveis" },
+          { icon: "📦", num: stats.pedidos, label: "Pedidos" },
+          { icon: "🏷️", num: stats.categorias, label: "Categorias" },
+        ].map((c) => (
+          <div key={c.label} className="dash-card">
+            <span className="dash-icon">{c.icon}</span>
+            <div>
+              <p className="dash-num">{c.num}</p>
+              <p className="dash-label">{c.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
+// PRODUTOS
+// ════════════════════════════════════════════
 function Produtos({ categorias }) {
   const [produtos, setProdutos] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [modal, setModal]       = useState(null); // null | "novo" | {produto}
-  const [form, setForm]         = useState({});
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null);
+  const [modalImagens, setModalImagens] = useState(null);
+  const [form, setForm] = useState({});
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro]         = useState(null);
-  const [busca, setBusca]       = useState("");
+  const [erro, setErro] = useState(null);
+  const [busca, setBusca] = useState("");
 
   const carregar = () => {
     setLoading(true);
-    getBrinquedos().then(setProdutos).finally(() => setLoading(false));
+    getBrinquedos()
+      .then(setProdutos)
+      .finally(() => setLoading(false));
   };
 
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => {
+    carregar();
+  }, []);
 
   const abrirNovo = () => {
-    setForm({ nome: "", descricao_curta: "", descricao_completa: "", codigo: "", valor_base: "", status_atual: "disponivel", categoria: "", idade_recomendada: "", regras_aluguel: "" });
+    setForm({
+      nome: "",
+      descricao_curta: "",
+      descricao_completa: "",
+      codigo: "",
+      valor_base: "",
+      status_atual: "disponivel",
+      categoria: "",
+      idade_recomendada: "",
+      regras_aluguel: "",
+    });
     setModal("novo");
     setErro(null);
   };
@@ -113,19 +348,30 @@ function Produtos({ categorias }) {
     setErro(null);
   };
 
-  const fechar = () => { setModal(null); setErro(null); };
+  const fechar = () => {
+    setModal(null);
+    setErro(null);
+  };
 
   const salvar = async () => {
+    if (!form.nome?.trim() || !form.codigo?.trim()) {
+      setErro("Nome e Código são obrigatórios.");
+      return;
+    }
     setSalvando(true);
     setErro(null);
     try {
       const payload = { ...form, categoria: form.categoria || null };
+      delete payload.imagens;
       if (modal === "novo") await criarBrinquedo(payload);
       else await editarBrinquedo(modal.id, payload);
       carregar();
       fechar();
-    } catch { setErro("Erro ao salvar. Verifique os campos."); }
-    finally { setSalvando(false); }
+    } catch {
+      setErro("Erro ao salvar. Verifique os campos.");
+    } finally {
+      setSalvando(false);
+    }
   };
 
   const deletar = async (id) => {
@@ -134,9 +380,10 @@ function Produtos({ categorias }) {
     carregar();
   };
 
-  const filtrados = produtos.filter(p =>
-    p.nome.toLowerCase().includes(busca.toLowerCase()) ||
-    p.codigo?.toLowerCase().includes(busca.toLowerCase())
+  const filtrados = produtos.filter(
+    (p) =>
+      p.nome.toLowerCase().includes(busca.toLowerCase()) ||
+      p.codigo?.toLowerCase().includes(busca.toLowerCase()),
   );
 
   return (
@@ -144,99 +391,204 @@ function Produtos({ categorias }) {
       <div className="section-header">
         <h2 className="section-title">Produtos</h2>
         <div className="section-actions">
-          <input className="admin-search" placeholder="Buscar produto..." value={busca} onChange={e => setBusca(e.target.value)} />
+          <input
+            className="admin-search"
+            placeholder="Buscar por nome ou código..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
           <button className="btn-admin btn-primary" onClick={abrirNovo}>
             <Icon name="novo" /> Novo produto
           </button>
         </div>
       </div>
 
-      {loading ? <p className="admin-loading">Carregando...</p> : (
+      {loading ? (
+        <p className="admin-loading">Carregando...</p>
+      ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
+                <th>Foto</th>
                 <th>Código</th>
                 <th>Nome</th>
                 <th>Categoria</th>
-                <th>Valor base</th>
+                <th>Valor/dia</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {filtrados.map(p => (
-                <tr key={p.id}>
-                  <td className="td-code">{p.codigo}</td>
-                  <td className="td-bold">{p.nome}</td>
-                  <td>{p.categoria?.nome || "—"}</td>
-                  <td>R$ {parseFloat(p.valor_base || 0).toFixed(2)}</td>
-                  <td><StatusBadge status={p.status_atual} /></td>
-                  <td>
-                    <div className="td-acoes">
-                      <button className="btn-icon" onClick={() => abrirEditar(p)}><Icon name="editar" /></button>
-                      <button className="btn-icon danger" onClick={() => deletar(p.id)}><Icon name="deletar" /></button>
-                    </div>
+              {filtrados.map((p) => {
+                const thumb = p.imagens?.[0]?.imagem_url;
+                return (
+                  <tr key={p.id}>
+                    <td>
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={p.nome}
+                          className="table-thumb"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="table-thumb-empty">📷</div>
+                      )}
+                    </td>
+                    <td className="td-code">{p.codigo}</td>
+                    <td className="td-bold">{p.nome}</td>
+                    <td>{p.categoria?.nome || "—"}</td>
+                    <td>R$ {parseFloat(p.valor_base || 0).toFixed(2)}</td>
+                    <td>
+                      <StatusBadge status={p.status_atual} />
+                    </td>
+                    <td>
+                      <div className="td-acoes">
+                        <button
+                          className="btn-icon"
+                          title="Gerenciar imagens"
+                          onClick={() => setModalImagens(p)}
+                        >
+                          🖼️
+                        </button>
+                        <button
+                          className="btn-icon"
+                          title="Editar produto"
+                          onClick={() => abrirEditar(p)}
+                        >
+                          <Icon name="editar" />
+                        </button>
+                        <button
+                          className="btn-icon danger"
+                          title="Deletar"
+                          onClick={() => deletar(p.id)}
+                        >
+                          <Icon name="deletar" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filtrados.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="td-empty">
+                    Nenhum produto encontrado.
                   </td>
                 </tr>
-              ))}
-              {filtrados.length === 0 && (
-                <tr><td colSpan={6} className="td-empty">Nenhum produto encontrado.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal de imagens */}
+      {modalImagens && (
+        <GerenciadorImagens
+          produto={modalImagens}
+          onFechar={() => {
+            setModalImagens(null);
+            carregar();
+          }}
+        />
+      )}
+
+      {/* Modal de produto */}
       {modal !== null && (
         <div className="modal-overlay" onClick={fechar}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{modal === "novo" ? "Novo produto" : "Editar produto"}</h3>
-              <button className="btn-icon" onClick={fechar}><Icon name="fechar" /></button>
+              <h3>
+                {modal === "novo" ? "Novo produto" : `Editar: ${modal.nome}`}
+              </h3>
+              <button className="btn-icon" onClick={fechar}>
+                <Icon name="fechar" />
+              </button>
             </div>
-
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
                   <label>Nome *</label>
-                  <input value={form.nome || ""} onChange={e => setForm(f => ({...f, nome: e.target.value}))} />
+                  <input
+                    value={form.nome || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, nome: e.target.value }))
+                    }
+                  />
                 </div>
                 <div className="form-group">
                   <label>Código *</label>
-                  <input value={form.codigo || ""} onChange={e => setForm(f => ({...f, codigo: e.target.value}))} />
+                  <input
+                    value={form.codigo || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, codigo: e.target.value }))
+                    }
+                  />
                 </div>
               </div>
-
               <div className="form-group">
                 <label>Descrição curta</label>
-                <input value={form.descricao_curta || ""} onChange={e => setForm(f => ({...f, descricao_curta: e.target.value}))} />
+                <input
+                  value={form.descricao_curta || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, descricao_curta: e.target.value }))
+                  }
+                />
               </div>
-
               <div className="form-group">
                 <label>Descrição completa</label>
-                <textarea rows={3} value={form.descricao_completa || ""} onChange={e => setForm(f => ({...f, descricao_completa: e.target.value}))} />
+                <textarea
+                  rows={3}
+                  value={form.descricao_completa || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      descricao_completa: e.target.value,
+                    }))
+                  }
+                />
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label>Valor base (R$/dia) *</label>
-                  <input type="number" step="0.01" value={form.valor_base || ""} onChange={e => setForm(f => ({...f, valor_base: e.target.value}))} />
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.valor_base || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, valor_base: e.target.value }))
+                    }
+                  />
                 </div>
                 <div className="form-group">
                   <label>Categoria</label>
-                  <select value={form.categoria || ""} onChange={e => setForm(f => ({...f, categoria: e.target.value}))}>
+                  <select
+                    value={form.categoria || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, categoria: e.target.value }))
+                    }
+                  >
                     <option value="">Sem categoria</option>
-                    {categorias.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                    {categorias.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label>Status</label>
-                  <select value={form.status_atual || "disponivel"} onChange={e => setForm(f => ({...f, status_atual: e.target.value}))}>
+                  <select
+                    value={form.status_atual || "disponivel"}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, status_atual: e.target.value }))
+                    }
+                  >
                     <option value="disponivel">Disponível</option>
                     <option value="alugado">Alugado</option>
                     <option value="manutencao">Em manutenção</option>
@@ -244,22 +596,39 @@ function Produtos({ categorias }) {
                 </div>
                 <div className="form-group">
                   <label>Idade recomendada</label>
-                  <input value={form.idade_recomendada || ""} onChange={e => setForm(f => ({...f, idade_recomendada: e.target.value}))} />
+                  <input
+                    value={form.idade_recomendada || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        idade_recomendada: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
               </div>
-
               <div className="form-group">
                 <label>Regras de aluguel</label>
-                <textarea rows={2} value={form.regras_aluguel || ""} onChange={e => setForm(f => ({...f, regras_aluguel: e.target.value}))} />
+                <textarea
+                  rows={2}
+                  value={form.regras_aluguel || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, regras_aluguel: e.target.value }))
+                  }
+                />
               </div>
-
               {erro && <p className="form-erro">{erro}</p>}
             </div>
-
             <div className="modal-footer">
-              <button className="btn-admin btn-ghost" onClick={fechar}>Cancelar</button>
-              <button className="btn-admin btn-primary" onClick={salvar} disabled={salvando}>
-                {salvando ? "Salvando..." : "Salvar"}
+              <button className="btn-admin btn-ghost" onClick={fechar}>
+                Cancelar
+              </button>
+              <button
+                className="btn-admin btn-primary"
+                onClick={salvar}
+                disabled={salvando}
+              >
+                {salvando ? "Salvando..." : "Salvar produto"}
               </button>
             </div>
           </div>
@@ -269,37 +638,61 @@ function Produtos({ categorias }) {
   );
 }
 
-// ════════════════════════════════════════
-// SEÇÃO: PEDIDOS
-// ════════════════════════════════════════
+// ════════════════════════════════════════════
+// PEDIDOS
+// ════════════════════════════════════════════
 function Pedidos() {
-  const [pedidos, setPedidos]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [filtro, setFiltro]     = useState("");
-  const [modal, setModal]       = useState(null);
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filtro, setFiltro] = useState("");
+  const [busca, setBusca] = useState("");
+  const [detalhe, setDetalhe] = useState(null);
 
   const carregar = () => {
     setLoading(true);
-    getPedidos().then(setPedidos).finally(() => setLoading(false));
+    getPedidos()
+      .then(setPedidos)
+      .finally(() => setLoading(false));
   };
 
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => {
+    carregar();
+  }, []);
 
   const atualizarStatus = async (id, status) => {
     await editarPedido(id, { status_aluguel: status });
     carregar();
+    if (detalhe?.id === id)
+      setDetalhe((d) => ({ ...d, status_aluguel: status }));
   };
 
-  const filtrados = pedidos.filter(p =>
-    filtro === "" || p.status_aluguel === filtro
-  );
+  const filtrados = pedidos.filter((p) => {
+    const bateStatus = filtro === "" || p.status_aluguel === filtro;
+    const bateCliente =
+      busca === "" ||
+      String(p.id).includes(busca) ||
+      (p.cliente?.user?.username || "")
+        .toLowerCase()
+        .includes(busca.toLowerCase());
+    return bateStatus && bateCliente;
+  });
 
   return (
     <div className="admin-section">
       <div className="section-header">
         <h2 className="section-title">Pedidos</h2>
         <div className="section-actions">
-          <select className="admin-search" value={filtro} onChange={e => setFiltro(e.target.value)}>
+          <input
+            className="admin-search"
+            placeholder="Buscar por # ou cliente..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+          <select
+            className="admin-search"
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+          >
             <option value="">Todos os status</option>
             <option value="pendente">Pendente</option>
             <option value="aprovado">Aprovado</option>
@@ -310,13 +703,16 @@ function Pedidos() {
         </div>
       </div>
 
-      {loading ? <p className="admin-loading">Carregando...</p> : (
+      {loading ? (
+        <p className="admin-loading">Carregando...</p>
+      ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Cliente</th>
+                <th>Data</th>
                 <th>Prazo</th>
                 <th>Logística</th>
                 <th>Valor total</th>
@@ -325,76 +721,223 @@ function Pedidos() {
               </tr>
             </thead>
             <tbody>
-              {filtrados.map(p => (
+              {filtrados.map((p) => (
                 <tr key={p.id}>
                   <td className="td-code">#{p.id}</td>
-                  <td className="td-bold">{p.cliente?.user?.username || p.cliente || "—"}</td>
-                  <td>{p.prazo_aluguel} {p.prazo_aluguel === 1 ? "dia" : "dias"}</td>
-                  <td>{p.tipo_logistica === "entrega" ? "🚚 Entrega" : "🏪 Retirada"}</td>
-                  <td>R$ {parseFloat(p.valor_total || 0).toFixed(2)}</td>
-                  <td><StatusBadge status={p.status_aluguel} /></td>
+                  <td className="td-bold">
+                    {p.cliente?.user?.username || p.cliente || "—"}
+                  </td>
+                  <td style={{ fontSize: 12, color: "#8b7b6b" }}>
+                    {p.data_criacao
+                      ? new Date(p.data_criacao).toLocaleDateString("pt-BR")
+                      : "—"}
+                  </td>
                   <td>
-                    <select
-                      className="select-status"
-                      value={p.status_aluguel}
-                      onChange={e => atualizarStatus(p.id, e.target.value)}
-                    >
-                      <option value="pendente">Pendente</option>
-                      <option value="aprovado">Aprovado</option>
-                      <option value="em_andamento">Em andamento</option>
-                      <option value="concluido">Concluído</option>
-                      <option value="cancelado">Cancelado</option>
-                    </select>
+                    {p.prazo_aluguel} {p.prazo_aluguel === 1 ? "dia" : "dias"}
+                  </td>
+                  <td>
+                    {p.tipo_logistica === "entrega"
+                      ? "🚚 Entrega"
+                      : "🏪 Retirada"}
+                  </td>
+                  <td>R$ {parseFloat(p.valor_total || 0).toFixed(2)}</td>
+                  <td>
+                    <StatusBadge status={p.status_aluguel} />
+                  </td>
+                  <td>
+                    <div className="td-acoes">
+                      <button
+                        className="btn-icon"
+                        title="Ver detalhes"
+                        onClick={() => setDetalhe(p)}
+                      >
+                        🔍
+                      </button>
+                      <select
+                        className="select-status"
+                        value={p.status_aluguel}
+                        onChange={(e) => atualizarStatus(p.id, e.target.value)}
+                      >
+                        <option value="pendente">Pendente</option>
+                        <option value="aprovado">Aprovado</option>
+                        <option value="em_andamento">Em andamento</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="cancelado">Cancelado</option>
+                      </select>
+                    </div>
                   </td>
                 </tr>
               ))}
               {filtrados.length === 0 && (
-                <tr><td colSpan={7} className="td-empty">Nenhum pedido encontrado.</td></tr>
+                <tr>
+                  <td colSpan={8} className="td-empty">
+                    Nenhum pedido encontrado.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Modal de detalhe do pedido */}
+      {detalhe && (
+        <div className="modal-overlay" onClick={() => setDetalhe(null)}>
+          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Pedido #{detalhe.id}</h3>
+              <button className="btn-icon" onClick={() => setDetalhe(null)}>
+                <Icon name="fechar" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="detalhe-pedido">
+                <div className="detalhe-linha">
+                  <span>Cliente</span>
+                  <strong>
+                    {detalhe.cliente?.user?.username || detalhe.cliente || "—"}
+                  </strong>
+                </div>
+                <div className="detalhe-linha">
+                  <span>Data</span>
+                  <strong>
+                    {detalhe.data_criacao
+                      ? new Date(detalhe.data_criacao).toLocaleString("pt-BR")
+                      : "—"}
+                  </strong>
+                </div>
+                <div className="detalhe-linha">
+                  <span>Logística</span>
+                  <strong>
+                    {detalhe.tipo_logistica === "entrega"
+                      ? "🚚 Entrega"
+                      : "🏪 Retirada"}
+                  </strong>
+                </div>
+                {detalhe.endereco_entrega && (
+                  <div className="detalhe-linha">
+                    <span>Endereço</span>
+                    <strong>{detalhe.endereco_entrega}</strong>
+                  </div>
+                )}
+                <div className="detalhe-linha">
+                  <span>Prazo</span>
+                  <strong>
+                    {detalhe.prazo_aluguel}{" "}
+                    {detalhe.prazo_aluguel === 1 ? "dia" : "dias"}
+                  </strong>
+                </div>
+                <div className="detalhe-linha">
+                  <span>Valor total</span>
+                  <strong style={{ color: "#c8a27a" }}>
+                    R$ {parseFloat(detalhe.valor_total || 0).toFixed(2)}
+                  </strong>
+                </div>
+                <div className="detalhe-linha">
+                  <span>Status</span>
+                  <StatusBadge status={detalhe.status_aluguel} />
+                </div>
+
+                {detalhe.itens?.length > 0 && (
+                  <div className="detalhe-itens">
+                    <p className="detalhe-itens-title">Itens do pedido</p>
+                    {detalhe.itens.map((item, i) => (
+                      <div key={i} className="detalhe-item">
+                        <span>{item.brinquedo?.nome || `Item ${i + 1}`}</span>
+                        <span>
+                          R$ {parseFloat(item.preco_no_momento || 0).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="form-group" style={{ marginTop: "1rem" }}>
+                  <label>Atualizar status</label>
+                  <select
+                    className="admin-search"
+                    value={detalhe.status_aluguel}
+                    onChange={(e) =>
+                      atualizarStatus(detalhe.id, e.target.value)
+                    }
+                  >
+                    <option value="pendente">Pendente</option>
+                    <option value="aprovado">Aprovado</option>
+                    <option value="em_andamento">Em andamento</option>
+                    <option value="concluido">Concluído</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-// ════════════════════════════════════════
-// SEÇÃO: CATEGORIAS
-// ════════════════════════════════════════
+// ════════════════════════════════════════════
+// CATEGORIAS
+// ════════════════════════════════════════════
 function Categorias() {
   const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [modal, setModal]           = useState(null);
-  const [form, setForm]             = useState({});
-  const [salvando, setSalvando]     = useState(false);
-  const [erro, setErro]             = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null);
+  const [form, setForm] = useState({});
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState(null);
 
   const carregar = () => {
     setLoading(true);
-    getCategorias().then(setCategorias).finally(() => setLoading(false));
+    getCategorias()
+      .then(setCategorias)
+      .finally(() => setLoading(false));
+  };
+  useEffect(() => {
+    carregar();
+  }, []);
+
+  const abrirNovo = () => {
+    setForm({ nome: "", descricao: "" });
+    setModal("novo");
+    setErro(null);
+  };
+  const abrirEditar = (c) => {
+    setForm({ ...c });
+    setModal(c);
+    setErro(null);
+  };
+  const fechar = () => {
+    setModal(null);
+    setErro(null);
   };
 
-  useEffect(() => { carregar(); }, []);
-
-  const abrirNovo = () => { setForm({ nome: "", descricao: "" }); setModal("novo"); setErro(null); };
-  const abrirEditar = (c) => { setForm({ ...c }); setModal(c); setErro(null); };
-  const fechar = () => { setModal(null); setErro(null); };
-
   const salvar = async () => {
-    if (!form.nome?.trim()) { setErro("Nome obrigatório."); return; }
+    if (!form.nome?.trim()) {
+      setErro("Nome obrigatório.");
+      return;
+    }
     setSalvando(true);
     try {
       if (modal === "novo") await criarCategoria(form);
       else await editarCategoria(modal.id, form);
       carregar();
       fechar();
-    } catch { setErro("Erro ao salvar."); }
-    finally { setSalvando(false); }
+    } catch {
+      setErro("Erro ao salvar.");
+    } finally {
+      setSalvando(false);
+    }
   };
 
   const deletar = async (id) => {
-    if (!confirm("Deseja deletar esta categoria?")) return;
+    if (
+      !confirm(
+        "Deseja deletar esta categoria? Os produtos vinculados ficarão sem categoria.",
+      )
+    )
+      return;
     await deletarCategoria(id);
     carregar();
   };
@@ -408,27 +951,47 @@ function Categorias() {
         </button>
       </div>
 
-      {loading ? <p className="admin-loading">Carregando...</p> : (
+      {loading ? (
+        <p className="admin-loading">Carregando...</p>
+      ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
-              <tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr>
+              <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+              </tr>
             </thead>
             <tbody>
-              {categorias.map(c => (
+              {categorias.map((c) => (
                 <tr key={c.id}>
                   <td className="td-bold">{c.nome}</td>
                   <td>{c.descricao || "—"}</td>
                   <td>
                     <div className="td-acoes">
-                      <button className="btn-icon" onClick={() => abrirEditar(c)}><Icon name="editar" /></button>
-                      <button className="btn-icon danger" onClick={() => deletar(c.id)}><Icon name="deletar" /></button>
+                      <button
+                        className="btn-icon"
+                        onClick={() => abrirEditar(c)}
+                      >
+                        <Icon name="editar" />
+                      </button>
+                      <button
+                        className="btn-icon danger"
+                        onClick={() => deletar(c.id)}
+                      >
+                        <Icon name="deletar" />
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {categorias.length === 0 && (
-                <tr><td colSpan={3} className="td-empty">Nenhuma categoria.</td></tr>
+                <tr>
+                  <td colSpan={3} className="td-empty">
+                    Nenhuma categoria.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -437,25 +1000,46 @@ function Categorias() {
 
       {modal !== null && (
         <div className="modal-overlay" onClick={fechar}>
-          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
+          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{modal === "novo" ? "Nova categoria" : "Editar categoria"}</h3>
-              <button className="btn-icon" onClick={fechar}><Icon name="fechar" /></button>
+              <h3>
+                {modal === "novo" ? "Nova categoria" : "Editar categoria"}
+              </h3>
+              <button className="btn-icon" onClick={fechar}>
+                <Icon name="fechar" />
+              </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
                 <label>Nome *</label>
-                <input value={form.nome || ""} onChange={e => setForm(f => ({...f, nome: e.target.value}))} />
+                <input
+                  value={form.nome || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, nome: e.target.value }))
+                  }
+                />
               </div>
               <div className="form-group">
                 <label>Descrição</label>
-                <textarea rows={3} value={form.descricao || ""} onChange={e => setForm(f => ({...f, descricao: e.target.value}))} />
+                <textarea
+                  rows={3}
+                  value={form.descricao || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, descricao: e.target.value }))
+                  }
+                />
               </div>
               {erro && <p className="form-erro">{erro}</p>}
             </div>
             <div className="modal-footer">
-              <button className="btn-admin btn-ghost" onClick={fechar}>Cancelar</button>
-              <button className="btn-admin btn-primary" onClick={salvar} disabled={salvando}>
+              <button className="btn-admin btn-ghost" onClick={fechar}>
+                Cancelar
+              </button>
+              <button
+                className="btn-admin btn-primary"
+                onClick={salvar}
+                disabled={salvando}
+              >
                 {salvando ? "Salvando..." : "Salvar"}
               </button>
             </div>
@@ -466,38 +1050,57 @@ function Categorias() {
   );
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════
 // ADMIN PRINCIPAL
-// ════════════════════════════════════════
+// ════════════════════════════════════════════
 export default function Admin() {
-  const [aba, setAba]     = useState("dashboard");
-  const [stats, setStats] = useState({ produtos: 0, disponiveis: 0, pedidos: 0, categorias: 0 });
+  const [autenticado, setAutenticado] = useState(
+    () => sessionStorage.getItem("admin_auth") === "1",
+  );
+  const [aba, setAba] = useState("dashboard");
+  const [stats, setStats] = useState({
+    produtos: 0,
+    disponiveis: 0,
+    pedidos: 0,
+    categorias: 0,
+  });
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
+    if (!autenticado) return;
     Promise.all([getBrinquedos(), getCategorias(), getPedidos()])
       .then(([produtos, cats, pedidos]) => {
         setCategorias(cats);
         setStats({
-          produtos:    produtos.length,
-          disponiveis: produtos.filter(p => p.status_atual === "disponivel").length,
-          pedidos:     pedidos.length,
-          categorias:  cats.length,
+          produtos: produtos.length,
+          disponiveis: produtos.filter((p) => p.status_atual === "disponivel")
+            .length,
+          pedidos: pedidos.length,
+          categorias: cats.length,
         });
       })
       .catch(() => {});
-  }, []);
+  }, [autenticado]);
+
+  const sair = () => {
+    sessionStorage.removeItem("admin_auth");
+    setAutenticado(false);
+  };
+
+  // ── Tela de login se não autenticado ──
+  if (!autenticado) {
+    return <AdminLogin onLogin={() => setAutenticado(true)} />;
+  }
 
   const abas = [
     { id: "dashboard", label: "Dashboard", icon: "dashboard" },
-    { id: "produtos",  label: "Produtos",  icon: "produto"   },
-    { id: "pedidos",   label: "Pedidos",   icon: "pedido"    },
-    { id: "categorias",label: "Categorias",icon: "categoria" },
+    { id: "produtos", label: "Produtos", icon: "produto" },
+    { id: "pedidos", label: "Pedidos", icon: "pedido" },
+    { id: "categorias", label: "Categorias", icon: "categoria" },
   ];
 
   return (
     <div className="admin-layout">
-      {/* ── Sidebar ── */}
       <aside className="admin-sidebar">
         <div className="admin-brand">
           <span className="brand-icon">🧸</span>
@@ -506,7 +1109,7 @@ export default function Admin() {
         <p className="admin-sub">Painel Admin</p>
 
         <nav className="admin-nav">
-          {abas.map(a => (
+          {abas.map((a) => (
             <button
               key={a.id}
               className={`nav-item ${aba === a.id ? "active" : ""}`}
@@ -518,17 +1121,21 @@ export default function Admin() {
           ))}
         </nav>
 
-        <a href="/" className="nav-item nav-sair">
-          <Icon name="sair" />
-          <span>Voltar ao site</span>
-        </a>
+        <div className="sidebar-bottom">
+          <a href="/" className="nav-item">
+            <Icon name="sair" />
+            <span>Ver site</span>
+          </a>
+          <button className="nav-item nav-sair" onClick={sair}>
+            🔒 <span>Sair</span>
+          </button>
+        </div>
       </aside>
 
-      {/* ── Conteúdo ── */}
       <main className="admin-content">
-        {aba === "dashboard"  && <Dashboard stats={stats} />}
-        {aba === "produtos"   && <Produtos categorias={categorias} />}
-        {aba === "pedidos"    && <Pedidos />}
+        {aba === "dashboard" && <Dashboard stats={stats} />}
+        {aba === "produtos" && <Produtos categorias={categorias} />}
+        {aba === "pedidos" && <Pedidos />}
         {aba === "categorias" && <Categorias />}
       </main>
     </div>

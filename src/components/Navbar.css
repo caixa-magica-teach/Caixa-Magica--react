@@ -43,7 +43,7 @@
 }
 
 .navbar-links a:hover {
-  color: #f0ddc8;
+  color: #ce490b;
 }
 
 /* ── Busca ──────────────────────────────── */
@@ -95,8 +95,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .previa-vazio {
@@ -218,4 +224,58 @@
   padding: 0 4px;
   box-sizing: border-box;
   line-height: 1;
+}
+/* Agrupa o Login e o Carrinho no lado direito */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Distância entre o botão de login e o carrinho */
+}
+
+/* Botão de Perfil/Login */
+.navbar-profile {
+  display: flex;
+  flex-direction: column; /* Coloca o texto "Login" embaixo do ícone */
+  align-items: center;
+  text-decoration: none;
+  color: #fffbfb; /* Ajuste para a cor padrão do texto da sua barra */
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.navbar-profile:hover {
+  opacity: 0.7;
+  color: #ce490b;
+}
+
+.navbar-profile:active {
+  transform: scale(0.95);
+}
+
+/* Tamanho e formato do ícone de bonequinho */
+.profile-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+/* Palavra "Login" embaixo do ícone */
+.navbar-profile span {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Opcional: Garante que o botão do carrinho fique alinhado na mesma altura do ícone */
+.navbar-cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 24px;
 }

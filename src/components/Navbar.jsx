@@ -1,4 +1,5 @@
 // src/components/Navbar.jsx
+import { useAuth } from "../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
@@ -7,14 +8,15 @@ import { getBrinquedos } from "../services/api";
 import "./Navbar.css";
 
 function Navbar() {
-  const [busca, setBusca]         = useState("");
-  const [previa, setPrevia]       = useState([]);
+  const [busca, setBusca] = useState("");
+  const [previa, setPrevia] = useState([]);
   const [mostrarPrevia, setMostrarPrevia] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const { quantidade }            = useCart();
-  const navigate                  = useNavigate();
-  const wrapRef                   = useRef(null);
-  const timerRef                  = useRef(null);
+  const { quantidade } = useCart();
+  const navigate = useNavigate();
+  const wrapRef = useRef(null);
+  const timerRef = useRef(null);
+  const { user, logado } = useAuth();
 
   // Fecha a prévia ao clicar fora
   useEffect(() => {
@@ -79,10 +81,14 @@ function Navbar() {
           <img src={logo} alt="Caixa Mágica" className="navbar-logo" />
         </Link>
 
+        {/* ── 1. Login removido da lista da esquerda ── */}
         <ul className="navbar-links">
-          <li><Link to="/catalogo">Catálogo</Link></li>
-          <li><Link to="/login">Login</Link></li>
-          <li><a href="#">Sobre</a></li>
+          <li>
+            <Link to="/catalogo">Catálogo</Link>
+          </li>
+          <li>
+            <a href="#">Quem Somos</a>
+          </li>
         </ul>
 
         {/* ── Busca com prévia ── */}
@@ -116,10 +122,17 @@ function Navbar() {
                         onClick={() => irParaProduto(produto.id)}
                       >
                         <div className="previa-img">
-                          {img
-                            ? <img src={img} alt={produto.nome} onError={(e) => { e.target.style.display = "none"; }} />
-                            : <div className="previa-img-placeholder" />
-                          }
+                          {img ? (
+                            <img
+                              src={img}
+                              alt={produto.nome}
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <div className="previa-img-placeholder" />
+                          )}
                         </div>
                         <div className="previa-info">
                           <p className="previa-nome">{produto.nome}</p>
@@ -143,13 +156,40 @@ function Navbar() {
           )}
         </div>
 
-        {/* ── Carrinho ── */}
-        <button className="navbar-cart" onClick={() => navigate("/carrinho")}>
-          🛒
-          {quantidade > 0 && (
-            <span className="cart-badge">{quantidade}</span>
-          )}
-        </button>
+        {/* ── 2. Nova área da direita: Ícone de Login + Carrinho ── */}
+        <div className="navbar-right">
+          {/* Aponta para /area-cliente se estiver logado, ou /login se não estiver */}
+          <Link
+            to={logado ? "/area-cliente" : "/login"}
+            className="navbar-profile"
+          >
+            <svg
+              className="profile-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>
+              {logado && user
+                ? user.nome?.split(" ")[0] ||
+                  user.email?.split("@")[0] ||
+                  "Conta"
+                : "Login"}
+            </span>
+          </Link>
+
+          {/* ── Carrinho ── */}
+          <button className="navbar-cart" onClick={() => navigate("/carrinho")}>
+            🛒
+            {quantidade > 0 && <span className="cart-badge">{quantidade}</span>}
+          </button>
+        </div>
       </div>
     </nav>
   );
