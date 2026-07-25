@@ -1,4 +1,3 @@
-// src/pages/carrinho/Carrinho.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -53,8 +52,9 @@ export default function Carrinho() {
     setErro(null);
 
     try {
-      // Montagem do payload estritamente compatível com os modelos Pedido e ItemPedido
+      // Montagem do payload incluindo o ID do cliente exigido pelo Django
       const payload = {
+        cliente: Number(localStorage.getItem("user_id") || 3),
         prazo_aluguel: Number(prazoSelecionado),
         tipo_logistica: logistica,
         endereco_entrega: logistica === "entrega" ? endereco : null,
@@ -101,7 +101,7 @@ export default function Carrinho() {
     );
   }
 
-  // ── Tela Principal do Carrinho ───────────────
+  // ── Tela Principal du Carrinho ───────────────
   return (
     <div className="carrinho-container">
       <Navbar />

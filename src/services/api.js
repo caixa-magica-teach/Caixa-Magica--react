@@ -1,8 +1,17 @@
 // src/services/api.js
 const BASE_URL = "http://localhost:8000/api/v1";
 
-const json = (res) => {
-  if (!res.ok) throw new Error(`Erro ${res.status}`);
+const json = async (res) => {
+  if (!res.ok) {
+    let errorDetail;
+    try {
+      errorDetail = await res.json();
+    } catch (e) {
+      errorDetail = await res.text();
+    }
+    console.error("DETALHE EXATO DO ERRO DO DJANGO:", JSON.stringify(errorDetail, null, 2));
+    throw new Error(`Erro ${res.status}`);
+  }
   return res.status === 204 ? null : res.json();
 };
 
@@ -67,28 +76,40 @@ export async function getPedidos() {
   return json(await fetch(`${BASE_URL}/pedidos/`));
 }
 
-
 export async function criarPedido(payload) {
-  return json(await fetch(`${BASE_URL}/pedidos/`, {
+  const usuarioSalvo = localStorage.getItem("caixa_magica_user");
+  let token = null;
+
+  if (usuarioSalvo) {
+    try {
+      const userObj = JSON.parse(usuarioSalvo);
+      token = userObj.token || userObj.access || userObj?.tokens?.access || userObj?.tokens?.token || null;
+    } catch (e) {
+      console.error("Erro ao ler dados do usuário do localStorage", e);
+    }
+  }
+
+  console.log("TOKEN QUE SERÁ ENVIADO:", token);
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  console.log("HEADERS FINAIS DA REQUISIÇÃO:", headers);
+  console.log("PAYLOAD ENVIADO NO PEDIDO:", payload);
+
+  const res = await fetch(`${BASE_URL}/pedidos/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: headers,
     body: JSON.stringify(payload),
-  }));
+  });
+
+  return json(res);
 }
-
-/*para salvar
-export async function criarPedido(payload) {
- const token = localStorage.getItem("access_token");
-
- return json(await fetch(`${BASE_URL}/pedidos/`, {
-   method: "POST",
-   headers: {
-     "Content-Type": "application/json",
-     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-   },
-   body: JSON.stringify(payload),
- }));
-}*/
 
 export async function editarPedido(id, payload) {
   return json(await fetch(`${BASE_URL}/pedidos/${id}/`, {

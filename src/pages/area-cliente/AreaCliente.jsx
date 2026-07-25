@@ -1,64 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; // 1. Import do seu contexto de autenticação
+import { useAuth } from "../../context/AuthContext";
+import { getPedidos } from "../../services/api"; // Importa a função da API
 import "./AreaCliente.css";
 
 const AreaCliente = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth(); // 2. Pega os dados do usuário e a função de logout
+  const { user, logout } = useAuth();
   const [abaAtiva, setAbaAtiva] = useState("ativos");
 
-  // Trata o nome do usuário de forma segura (pega só o primeiro nome ou parte do e-mail)
+  // Estados reais para os pedidos da API
+  const [pedidosAtivos, setPedidosAtivos] = useState([]);
+  const [historicoPedidos, setHistoricoPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
+
+  // Trata o nome do usuário de forma segura
   const primeiroNome =
     user?.nome?.split(" ")[0] || user?.email?.split("@")[0] || "Cliente";
 
-  // Função para sair e redirecionar
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const [pedidosAtivos] = useState([
-    {
-      id: 1,
-      nome: "Bebê Conforto Touring (Copacabana cinza)",
-      status: "Em Uso",
-      diasRestantes: 5,
-      prazoTotal: 15,
-      imagem: "🚗",
-    },
-    {
-      id: 2,
-      nome: "Piscina de Bolinhas Colorida",
-      status: "Urgente",
-      diasRestantes: 1,
-      prazoTotal: 7,
-      imagem: "🎨",
-    },
-  ]);
+  // Busca os pedidos reais do backend ao carregar a página
+  useEffect(() => {
+    async function carregarPedidos() {
+      try {
+        setLoading(true);
+        const dados = await getPedidos(); // Usa o token configurado no api.js
 
-  const [historicoPedidos] = useState([
-    {
-      id: 3,
-      nome: "Andador Musical Fisher-Price",
-      status: "Concluído",
-      dataDevolucao: "10/05/2026",
-      imagem: "🧸",
-    },
-  ]);
+        // Filtra ou separa os pedidos conforme o status vindo do Django
+        // Exemplo: se o pedido estiver ativo ou pendente vs concluído/cancelado
+        const ativos = dados.filter(p => p.status !== "Concluído" && p.status !== "Cancelado");
+        const historico = dados.filter(p => p.status === "Concluído" || p.status === "Cancelado");
 
-  const handleRenovar = (nome) => {
-    alert(`Solicitação de renovação enviada para: ${nome}`);
+        setPedidosAtivos(ativos);
+        setHistoricoPedidos(historico);
+      } catch (err) {
+        console.error("Erro ao carregar pedidos:", err);
+        setErro("Não foi possível carregar seus aluguéis.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarPedidos();
+  }, []);
+
+  const handleRenovar = (id) => {
+    alert(`Solicitação de renovação enviada para o pedido #${id}`);
   };
 
-  const handleDevolver = (nome) => {
-    alert(`Agendamento de devolução/coleta iniciado para: ${nome}`);
+  const handleDevolver = (id) => {
+    alert(`Agendamento de devolução/coleta iniciado para o pedido #${id}`);
   };
 
   return (
     <div className="page-wrapper">
       <div className="dashboard-container">
-        {/* Header com saudação personalizada + Botão de Sair */}
+        {/* Header */}
         <header
           className="welcome-header"
           style={{
@@ -72,7 +74,6 @@ const AreaCliente = () => {
             <p>Seja bem-vindo de volta ao seu painel Caixa Mágica.</p>
           </div>
 
-          {/* Botão de Logout */}
           <button
             onClick={handleLogout}
             className="btn-logout"
@@ -93,7 +94,7 @@ const AreaCliente = () => {
           </button>
         </header>
 
-        {/* Menu de Abas Internas e Botão de Catálogo Lado a Lado */}
+        {/* Abas e Catálogo */}
         <div className="dashboard-topo-wrapper">
           <div className="dashboard-tabs">
             <button
@@ -118,8 +119,11 @@ const AreaCliente = () => {
           </button>
         </div>
 
-        {/* Conteúdo da Aba: Ativos */}
-        {abaAtiva === "ativos" && (
+        {loading && <p style={{ textAlign: "center", padding: "20px" }}>Carregando seus pedidos...</p>}
+        {erro && <p style={{ color: "red", textAlign: "center" }}>{erro}</p>}
+
+        {/* Aba: Ativos */}
+        {!loading && abaAtiva === "ativos" && (
           <section className="bloco-alugueis">
             <h3 className="secao-titulo">Brinquedos com você agora</h3>
 
@@ -130,44 +134,32 @@ const AreaCliente = () => {
               </p>
             ) : (
               <div className="alugueis-grid">
-                {pedidosAtivos.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`item-alugado-card ${item.diasRestantes <= 2 ? "card-alerta" : ""}`}
-                  >
+                {pedidosAtivos.map((pedido) => (
+                  <div key={pedido.id} className="item-alugado-card">
                     <div className="item-image-placeholder">
-                      <span
-                        role="img"
-                        aria-label="brinquedo"
-                        style={{ fontSize: "2rem" }}
-                      >
-                        {item.imagem}
+                      <span role="img" aria-label="brinquedo" style={{ fontSize: "2rem" }}>
+                        📦
                       </span>
                     </div>
 
                     <div className="item-info">
-                      <span
-                        className={`status-badge ${item.diasRestantes <= 2 ? "badge-urgente" : ""}`}
-                      >
-                        {item.diasRestantes <= 2 ? "Vence Logo!" : item.status}
-                      </span>
-                      <h4>{item.nome}</h4>
+                      <span className="status-badge">{pedido.status || "Em Uso"}</span>
+                      <h4>Pedido #{pedido.id}</h4>
                       <p className="prazo-texto">
-                        Restam <strong>{item.diasRestantes}</strong> de{" "}
-                        {item.prazoTotal} dias
+                        Prazo: <strong>{pedido.prazo_aluguel}</strong> dias | Valor: R$ {pedido.valor_total}
                       </p>
                     </div>
 
                     <div className="acoes-container">
                       <button
                         className="btn-acao btn-renovar"
-                        onClick={() => handleRenovar(item.nome)}
+                        onClick={() => handleRenovar(pedido.id)}
                       >
                         Renovar
                       </button>
                       <button
                         className="btn-acao btn-devolucao"
-                        onClick={() => handleDevolver(item.nome)}
+                        onClick={() => handleDevolver(pedido.id)}
                       >
                         Devolver
                       </button>
@@ -179,40 +171,38 @@ const AreaCliente = () => {
           </section>
         )}
 
-        {/* Conteúdo da Aba: Histórico */}
-        {abaAtiva === "historico" && (
+        {/* Aba: Histórico */}
+        {!loading && abaAtiva === "historico" && (
           <section className="bloco-alugueis">
             <h3 className="secao-titulo">Aluguéis anteriores</h3>
-            <div className="alugueis-grid">
-              {historicoPedidos.map((item) => (
-                <div key={item.id} className="item-alugado-card historico-card">
-                  <div className="item-image-placeholder">
-                    <span
-                      role="img"
-                      aria-label="brinquedo"
-                      style={{ fontSize: "2rem" }}
-                    >
-                      {item.imagem}
-                    </span>
+            {historicoPedidos.length === 0 ? (
+              <p className="empty-text">Nenhum pedido anterior encontrado.</p>
+            ) : (
+              <div className="alugueis-grid">
+                {historicoPedidos.map((pedido) => (
+                  <div key={pedido.id} className="item-alugado-card historico-card">
+                    <div className="item-image-placeholder">
+                      <span role="img" aria-label="brinquedo" style={{ fontSize: "2rem" }}>
+                        📦
+                      </span>
+                    </div>
+                    <div className="item-info">
+                      <span className="status-badge concluido">Concluído</span>
+                      <h4>Pedido #{pedido.id}</h4>
+                      <p className="prazo-texto">Total: R$ {pedido.valor_total}</p>
+                    </div>
+                    <div className="acoes-container">
+                      <button
+                        className="btn-acao btn-renovar"
+                        onClick={() => navigate("/catalogo")}
+                      >
+                        Alugar de Novo
+                      </button>
+                    </div>
                   </div>
-                  <div className="item-info">
-                    <span className="status-badge concluido">Concluído</span>
-                    <h4>{item.nome}</h4>
-                    <p className="prazo-texto">
-                      Devolvido em: {item.dataDevolucao}
-                    </p>
-                  </div>
-                  <div className="acoes-container">
-                    <button
-                      className="btn-acao btn-renovar"
-                      onClick={() => navigate("/catalogo")}
-                    >
-                      Alugar de Novo
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
