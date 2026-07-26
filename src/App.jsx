@@ -13,7 +13,6 @@ import { CartProvider } from "./context/CartContext";
 
 export default function App() {
   return (
-    // 2. Envolva todas as rotas com o AuthProvider
     <AuthProvider>
       <CartProvider>
         <Routes>

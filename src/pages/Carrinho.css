@@ -1,5 +1,3 @@
-/* src/pages/carrinho/Carrinho.css */
-
 .carrinho-container {
   min-height: 100vh;
   display: flex;
@@ -32,7 +30,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: color var(--transition), transform var(--transition);
+  transition:
+    color var(--transition),
+    transform var(--transition);
 }
 
 .btn-voltar-link:hover {
@@ -304,7 +304,9 @@
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: background var(--transition), transform var(--transition);
+  transition:
+    background var(--transition),
+    transform var(--transition);
 }
 
 .btn-confirmar:hover:not(:disabled) {

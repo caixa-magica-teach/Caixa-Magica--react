@@ -6,7 +6,6 @@ import { useCart } from "../context/CartContext";
 import { criarPedido } from "../services/api";
 import "./Carrinho.css";
 
-// Prazos alinhados exatamente com o PRAZO_CHOICES do seu models.py no Django
 const PRAZOS_DISPONIVEIS = [
   { dias: 7, label: "7 Dias" },
   { dias: 15, label: "15 Dias" },
@@ -17,24 +16,19 @@ export default function Carrinho() {
   const { itens, removerItem, limparCarrinho, quantidade } = useCart();
   const navigate = useNavigate();
 
-  // Estados de controle da tela
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState(null);
 
-  // Estado do Prazo Global do pedido (exigido como valor único no seu Django: 7, 15 ou 30)
   const [prazoSelecionado, setPrazoSelecionado] = useState(7);
 
-  // Estado da Logística ('retirada' ou 'entrega', conforme LOGISTICA_CHOICES)
   const [logistica, setLogistica] = useState("retirada");
   const [endereco, setEndereco] = useState("");
 
-  // Cálculo Dinâmico: Diária do item * Dias selecionados no resumo
   const calcularPrecoItem = (valorBase) => {
     return Number(valorBase) * prazoSelecionado;
   };
 
-  // Soma o Total Geral com base no Prazo Global escolhido
   const valorTotalCarrinho = itens.reduce((acc, item) => {
     const base = item.valorBase || item.valor_base || 0;
     return acc + calcularPrecoItem(base);
@@ -52,7 +46,6 @@ export default function Carrinho() {
     setErro(null);
 
     try {
-      // Montagem do payload incluindo o ID do cliente exigido pelo Django
       const payload = {
         cliente: Number(localStorage.getItem("user_id") || 3),
         prazo_aluguel: Number(prazoSelecionado),
@@ -80,7 +73,6 @@ export default function Carrinho() {
     }
   };
 
-  // ── Tela de Sucesso ──────────────────────────
   if (sucesso) {
     return (
       <div className="carrinho-container">
@@ -101,7 +93,6 @@ export default function Carrinho() {
     );
   }
 
-  // ── Tela Principal du Carrinho ───────────────
   return (
     <div className="carrinho-container">
       <Navbar />

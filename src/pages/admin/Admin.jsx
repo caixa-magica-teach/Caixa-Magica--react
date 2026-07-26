@@ -11,6 +11,8 @@ import {
   editarCategoria,
   deletarCategoria,
   editarPedido,
+  adicionarImagem,
+  deletarImagem,
 } from "../../services/api";
 import "./Admin.css";
 
