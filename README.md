@@ -73,16 +73,6 @@ Login / Cadastro — Validação de campos, indicador de força de senha, aceite
 
 Painel Admin — Protegido por senha local. Dashboard com totais, CRUD de produtos com gerenciador de imagens por URL, CRUD de categorias e gerenciamento de pedidos com filtro por status e atualização direta na tabela.
 
-🌐 Deploy (Vercel)
-Suba o repositório para o GitHub
-Acesse vercel.com e importe o repositório
-Configure:
-Framework Preset: Vite
-Root Directory: site
-Build Command: npm run build
-Output Directory: dist
-Adicione a variável VITE_API_URL em Settings → Environment Variables
-Clique em Deploy
 🛠️ Scripts
 bash
 npm run dev      # Servidor de desenvolvimento
