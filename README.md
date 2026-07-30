@@ -6,56 +6,6 @@ Plataforma de aluguel de brinquedos infantis. Interface web desenvolvida em Reac
 
 Frontend: React 19.2.6 + Vite 8 (bundler), React Router DOM 7.15.1 (roteamento SPA), Swiper 14 (carrosséis), CSS puro com variáveis globais em global.css (estilização), Context API nativa — AuthContext e CartContext — (estado global), Fetch API nativo centralizado em src/services/api.js (sem axios).
 
-📁 Estrutura de pastas
-src/
-├── assets/                      # Imagens e arquivos estáticos
-│   ├── logo.png
-│   ├── fundo.jpg
-│   ├── brinquedo1.png
-│   ├── brinquedo2.png
-│   └── brinquedo3.png
-│
-├── components/                  # Componentes reutilizáveis
-│   ├── Banner.jsx / .css        # Carrossel principal da home
-│   ├── Categorias.jsx / .css    # Carrossel de categorias
-│   ├── MostRented.jsx / .css    # Seção "Mais Alugados"
-│   ├── NewProducts.jsx / .css   # Seção "Acabou de chegar"
-│   ├── Navbar.jsx / .css        # Barra de navegação global
-│   ├── Rodape.jsx / .css        # Rodapé global
-│   ├── Field.jsx                # Campo de formulário reutilizável
-│   ├── LoginForm.jsx            # Formulário de login
-│   └── RegisterForm.jsx         # Formulário de cadastro
-│
-├── context/                     # Contextos globais (estado compartilhado)
-│   ├── AuthContext.jsx          # Autenticação: user, login(), logout(), logado
-│   └── CartContext.jsx          # Carrinho: itens, adicionarItem(), removerItem(), total
-│
-├── pages/                       # Páginas da aplicação
-│   ├── Landing.jsx / .css       # Página inicial (apresentação)
-│   ├── Home.jsx / .css          # Home com seções conectadas à API
-│   ├── Login.jsx / .css         # Login e cadastro
-│   ├── Carrinho.jsx / .css      # Carrinho e confirmação de pedido
-│   ├── admin/
-│   │   ├── Admin.jsx            # Painel administrativo completo
-│   │   └── Admin.css
-│   ├── area-cliente/
-│   │   ├── AreaCliente.jsx      # Histórico de pedidos e perfil
-│   │   ├── AreaCliente.css
-│   │   └── AluguelCard.jsx      # Card de pedido individual
-│   ├── catalogo/
-│   │   ├── Catalogo.jsx         # Catálogo com filtros avançados
-│   │   └── Catalogo.css
-│   └── product-detail/
-│       ├── ProductDetail.jsx    # Detalhe do produto com carrossel
-│       └── ProductDetail.css
-│
-├── services/
-│   └── api.js                   # Todas as chamadas à API Django
-│
-├── App.jsx                      # Rotas e providers globais
-├── main.jsx                     # Ponto de entrada da aplicação
-├── global.css                   # Variáveis CSS globais (cores, fontes, espaçamentos)
-└── index.css                    # Reset CSS base
 ⚙️ Instalação e execução
 Pré-requisitos
 Node.js 18+
